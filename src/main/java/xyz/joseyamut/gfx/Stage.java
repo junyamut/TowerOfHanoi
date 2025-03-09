@@ -23,9 +23,9 @@ public class Stage extends Backstage {
     private FixedStack bufferStack3;
     // Disks, poles and base
     private final int diskHeight = 20;
-    private final int xCoordPoleX = 91;
-    private final int xCoordPoleY = 291;
-    private final int xCoordPoleZ = 491;
+    private final int xCoordPoleX = 95;
+    private final int xCoordPoleY = 295;
+    private final int xCoordPoleZ = 495;
     // Mouse listener, stack clickable areas
     private MouseListener mouseListener;
     private Rectangle xStackArea;
@@ -65,6 +65,7 @@ public class Stage extends Backstage {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
                 if (xStackArea.contains(e.getX(), e.getY())) {
                     log.info("CLICKED @ Stack X: x({}) y({})", e.getX(), e.getY());
                     stackMap.put(sourceStack, initialStack);
@@ -84,6 +85,7 @@ public class Stage extends Backstage {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 if (xStackArea.contains(e.getX(), e.getY())) {
                     log.info("RELEASED @ Stack X: x({}) y({})", e.getX(), e.getY());
                     stackMap.put(destinationStack, initialStack);
@@ -155,12 +157,12 @@ public class Stage extends Backstage {
         // Pole x/y/z markers
         g.setFont(new Font("Arial", Font.BOLD, 24));
         g.setColor( Color.WHITE );
-        g.drawString("X", 85, 290);
-        g.drawString("Y", 285, 290);
-        g.drawString("Z", 485, 290);
+        g.drawString("X", 90, 290);
+        g.drawString("Y", 290, 290);
+        g.drawString("Z", 490, 290);
         // Base
         g.setColor(Color.ORANGE);
-        g.fillRect(10, 240, 570, 15);
+        g.fillRect(10, 240, 575, 15);
         // Poles x/y/z
         g.fillRect(xCoordPoleX, yCoordPole(), 2, elements * diskHeight);
         g.fillRect(xCoordPoleY, yCoordPole(), 2, elements * diskHeight);
@@ -261,7 +263,7 @@ public class Stage extends Backstage {
         status = "";
         long timeElapsed = (System.currentTimeMillis() - timeStarted) / 1000;
 
-        g.setFont(new Font("SansSerif", Font.BOLD+Font.ITALIC, 25));
+        g.setFont(new Font("SansSerif", Font.BOLD+Font.ITALIC, 20));
         g.setColor(Color.YELLOW);
         g.drawString("Game Complete!", 25, 30);
         g.setFont(new Font("SansSerif", Font.ITALIC, 16));
@@ -275,9 +277,8 @@ public class Stage extends Backstage {
     }
 
     private Color diskColor(int weight) {
-        int greenHueMax = 255;
         int modifier = (weight + 1) * 10;
-        return new Color(0,greenHueMax - modifier,0);
+        return new Color(0,255 - modifier,0);
     }
 
     private int yCoordPole() {

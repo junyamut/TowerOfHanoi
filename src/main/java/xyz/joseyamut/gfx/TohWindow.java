@@ -21,14 +21,15 @@ public class TohWindow extends JFrame {
     private int stackSize;
 
     public void launch() {
-        // Window particulars
-        stackSize = 4; // initial stack size
+        // Initialize stack
+        stackSize = 4;
+        stage = initializeStage();
+        // Set MenuBar, actions and other components
         setJMenuBar(menuBar());
 
         menuItemActions();
-        stage = initializeStage();
         decorate();
-
+        // Window particulars
         setSize(615, 540);
         setResizable(false);
         setVisible(true);
@@ -61,7 +62,6 @@ public class TohWindow extends JFrame {
         for (int i = stackSize; i > 0; i--) {
             fillStack.push(i);
         }
-
         return new Stage(fillStack);
     }
 
@@ -75,7 +75,6 @@ public class TohWindow extends JFrame {
         menu.add(restartGameItem);
         menu.add(exitItem);
         menuBar.add(menu);
-
         return  menuBar;
     }
 
