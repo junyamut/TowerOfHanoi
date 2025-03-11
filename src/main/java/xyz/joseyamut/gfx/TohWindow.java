@@ -57,14 +57,6 @@ public class TohWindow extends JFrame {
         container.add(titlePanel, BorderLayout.NORTH);
     }
 
-    private Stage initializeStage() {
-        FixedStack fillStack = new FixedStack(stackSize);
-        for (int i = stackSize; i > 0; i--) {
-            fillStack.push(i);
-        }
-        return new Stage(fillStack);
-    }
-
     private JMenuBar menuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Game");
@@ -82,18 +74,6 @@ public class TohWindow extends JFrame {
         instructionsItem.addActionListener(e -> instructionsDialog());
         restartGameItem.addActionListener(e -> restartGameDialog());
         exitItem.addActionListener(e -> System.exit(0));
-    }
-
-    private void restartGame(int stackSize) {
-        this.stackSize = stackSize;
-
-        stagePanel.remove(stage);
-        stage = initializeStage();
-        stagePanel.add("Center", stage);
-        stagePanel.revalidate();
-        stagePanel.repaint();
-
-        log.info("Game restarted with Stack Size of {}!", stackSize);
     }
 
     private void instructionsDialog() {
@@ -151,6 +131,26 @@ public class TohWindow extends JFrame {
         StyleConstants.setFontFamily(styling, "Arial, Helvetica, sans-serif");
         StyleConstants.setFontSize(styling, 14);
         return styling;
+    }
+
+    private Stage initializeStage() {
+        FixedStack fillStack = new FixedStack(stackSize);
+        for (int i = stackSize; i > 0; i--) {
+            fillStack.push(i);
+        }
+        return new Stage(fillStack);
+    }
+
+    private void restartGame(int stackSize) {
+        this.stackSize = stackSize;
+
+        stagePanel.remove(stage);
+        stage = initializeStage();
+        stagePanel.add("Center", stage);
+        stagePanel.revalidate();
+        stagePanel.repaint();
+
+        log.info("Game restarted with Stack Size of {}!", stackSize);
     }
 
 }
