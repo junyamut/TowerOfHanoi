@@ -12,18 +12,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Stage extends Backstage {
-
     private int elements;
     // Stacks
     private FixedStack initialStack; // Stack at X location
     private FixedStack yStack;
     private FixedStack zStack;
-    private FixedStack shiftStack1;
-    private FixedStack shiftStack2;
-    private FixedStack shiftStack3;
     // Mouse listener, stack clickable areas
     private MouseListener mouseListener;
     private Rectangle xStackArea;
@@ -33,7 +30,6 @@ public class Stage extends Backstage {
     private String status;
     private boolean started;
     private long timeStarted;
-
     // Disks, poles and base
     private final int diskHeight = 20;
     private final int xPointPoleX = 95;
@@ -53,9 +49,6 @@ public class Stage extends Backstage {
 
         yStack = new FixedStack(elements);
         zStack = new FixedStack(elements);
-        shiftStack1 = new FixedStack(elements);
-        shiftStack2 = new FixedStack(elements);
-        shiftStack3 = new FixedStack(elements);
 
         elements += 1;
 
@@ -113,7 +106,7 @@ public class Stage extends Backstage {
                 stackMap.get(DST_STACK_KEY).push(stackMap.get(SRC_STACK_KEY).top());
                 stackMap.get(SRC_STACK_KEY).pop();
                 status = validMoveMsg;
-            } catch (Exception z) {
+            } catch (Exception e) {
                 String emptyStackMsg = "That stack is empty.";
                 log.warn("{}", emptyStackMsg);
                 status = emptyStackMsg;
@@ -134,136 +127,60 @@ public class Stage extends Backstage {
 
         drawBase();
         drawStacks();
+        setStatus();
     }
 
     private void drawBase() {
         // Pole x/y/z markers
-        g.setFont(new Font("Arial", Font.BOLD, 24));
+        g.setFont(new Font("Courier New", Font.BOLD, 24));
         g.setColor( Color.WHITE );
         g.drawString("X", 90, 290);
         g.drawString("Y", 290, 290);
         g.drawString("Z", 490, 290);
         // Base
-        g.setColor(Color.ORANGE);
+        g.setColor(new Color(182, 103, 19));
         g.fillRect(10, 240, 575, 15);
         // Poles x/y/z
         g.fillRect(xPointPoleX, yPointPole(), 2, elements * diskHeight);
         g.fillRect(xPointPoleY, yPointPole(), 2, elements * diskHeight);
         g.fillRect(xPointPoleZ, yPointPole(), 2, elements * diskHeight);
-        g.setColor(Color.GRAY);
-        g.setFont(new Font("SansSerif", Font.ITALIC, 18));
-        g.drawString(status, 25, 360);
     }
 
     private void drawStacks() {
-        int xPointDisk;
-        int yPointDisk;
-        int diskWidth;
-
-        int widestDiskWidth = (elements - 1) * 20;
-        final int diskArcWidth = 10;
-        final int diskArcHeight = 10;
-
-        int[] diskColor = new int[elements];
-
-        if ((initialStack.size() < elements) && !started) { // TODO: Check this!
+        if ((initialStack.size() < elements) && !started) {
             started = true;
+            status = "Game started.";
             timeStarted = System.currentTimeMillis();
         }
 
-        xStackArea = drawStackArea(xPointPoleX, widestDiskWidth);
-        yStackArea = drawStackArea(xPointPoleY, widestDiskWidth);
-        zStackArea = drawStackArea(xPointPoleZ, widestDiskWidth);
-
-        if (!initialStack.isEmpty()) {
-            int stackSize = initialStack.size();
-            for (int i = 0; i < stackSize; i++) {
-                shiftStack1.push(initialStack.pop());
-            }
-
-            stackSize = shiftStack1.size();
-            for (int j = stackSize ; j > 0; j--) {
-                initialStack.push(shiftStack1.top());
-                diskColor[j] = shiftStack1.pop();
-                xPointDisk = xPointPoleX - (diskColor[j] * 10);
-                yPointDisk = 240 - (initialStack.size() * 20);
-                diskWidth = diskColor[j] * diskHeight;
-                g.setColor(Color.BLACK);
-                g.drawRoundRect(xPointDisk, yPointDisk, diskWidth, diskHeight, diskArcWidth, diskArcHeight);
-                g.setColor(diskColor(j));
-                g.fillRoundRect(xPointDisk, yPointDisk, diskWidth, diskHeight, diskArcWidth, diskArcHeight);
-            }
-        }
-
-        if (!yStack.isEmpty()) {
-            int stackSize = yStack.size();
-            for (int i = 0; i < stackSize; i++) {
-                shiftStack2.push(yStack.pop());
-            }
-
-            stackSize = shiftStack2.size();
-            for (int j = stackSize ; j > 0; j--) {
-                yStack.push(shiftStack2.top());
-                diskColor[j] = shiftStack2.pop();
-                xPointDisk = xPointPoleY - (diskColor[j] * 10);
-                yPointDisk = 240 - (yStack.size() * 20);
-                diskWidth = diskColor[j] * diskHeight;
-                g.setColor(Color.BLACK);
-                g.drawRoundRect( xPointDisk, yPointDisk, diskWidth, diskHeight, diskArcWidth, diskArcHeight );
-                g.setColor(diskColor(j));
-                g.fillRoundRect( xPointDisk, yPointDisk, diskWidth, diskHeight, diskArcWidth,diskArcHeight );
-            }
-        }
-
-        if (!zStack.isEmpty()) {
-            int stackSize = zStack.size();
-            for (int i = 0; i < stackSize; i++) {
-                shiftStack3.push(zStack.pop());
-            }
-
-            stackSize = shiftStack3.size();
-            for(int j = stackSize ; j > 0; j--) {
-                zStack.push(shiftStack3.top());
-                diskColor[j] = shiftStack3.pop();
-                xPointDisk = xPointPoleZ - (diskColor[j] * 10);
-                yPointDisk = 240 - (zStack.size() * 20);
-                diskWidth = diskColor[j] * diskHeight;
-                g.setColor(Color.BLACK);
-                g.drawRoundRect(xPointDisk, yPointDisk, diskWidth, diskHeight, diskArcWidth, diskArcHeight);
-                g.setColor(diskColor(j));
-                g.fillRoundRect(xPointDisk, yPointDisk, diskWidth, diskHeight, diskArcWidth, diskArcHeight);
-            }
-        }
+        xStackArea = StackDisplayUpdater.draw(g, initialStack, elements, xPointPoleX);
+        yStackArea = StackDisplayUpdater.draw(g, yStack, elements, xPointPoleY);
+        zStackArea = StackDisplayUpdater.draw(g, zStack, elements, xPointPoleZ);
 
         if ((initialStack.isEmpty())
                 && (yStack.isEmpty())) {
-            gameOverText();
+            status = "Game completed!";
+            elapsedTime();
             removeMouseListener(mouseListener);
         }
     }
 
-    private Rectangle drawStackArea(int pointX, int widestDiskWidth) {
-        pointX = pointX - (widestDiskWidth / 2);
-        Rectangle stackArea = new Rectangle(pointX, yPointPole(), widestDiskWidth, elements * diskHeight);
-        g.setColor(Color.BLACK);
-        g.drawRect(stackArea.x, stackArea.y, stackArea.width, stackArea.height);
-        return stackArea;
+    private void setStatus() {
+        g.setColor(new Color(241, 216, 111, 255));
+        g.setFont(new Font("Courier New", Font.PLAIN, 18));
+        g.drawString(this.status, 25, 360);
     }
 
-    private void gameOverText() {
-        status = "";
-        long timeElapsed = (System.currentTimeMillis() - timeStarted) / 1000;
+    private void elapsedTime() {
+        long timeElapsed = (System.currentTimeMillis() - timeStarted);
+        long ss = TimeUnit.MILLISECONDS.toSeconds(timeElapsed) % 60;
+        long mm = TimeUnit.MILLISECONDS.toMinutes(timeElapsed) % 60;
+        long hh = TimeUnit.MILLISECONDS.toHours(timeElapsed);
+        String formattedElapsedTime = String.format("Elapsed time - %02d:%02d:%02d", hh, mm, ss);
 
-        g.setFont(new Font("SansSerif", Font.BOLD+Font.ITALIC, 20));
-        g.setColor(Color.YELLOW);
-        g.drawString("Game Complete!", 25, 30);
-        g.setFont(new Font("SansSerif", Font.ITALIC, 16));
-        g.drawString("Elapsed time: " + timeElapsed + " seconds", 25, 400);
-    }
-
-    private Color diskColor(int weight) {
-        int modifier = (weight + 1) * 10;
-        return new Color(0,255 - modifier,0);
+        g.setColor(new Color(241, 216, 111, 255));
+        g.setFont(new Font("Courier New", Font.BOLD, 14));
+        g.drawString(formattedElapsedTime, 25, 400);
     }
 
     private int yPointPole() {

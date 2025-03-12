@@ -116,7 +116,7 @@ public class TohWindow extends JFrame {
         jDialog.setVisible(true);
         jDialog.setModal(true);
 
-        restartComboBox.addActionListener(e -> { // TODO: Check this!
+        restartComboBox.addActionListener(e -> {
             JComboBox jComboBox = (JComboBox) e.getSource();
             Integer numDisksSelected = (Integer) jComboBox.getSelectedItem();
             log.info("Number of disks selected: {}", numDisksSelected);
