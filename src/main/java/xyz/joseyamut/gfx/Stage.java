@@ -141,9 +141,10 @@ public class Stage extends Backstage {
         g.setColor(new Color(182, 103, 19));
         g.fillRect(10, 240, 575, 15);
         // Poles x/y/z
-        g.fillRect(xPointPoleX, StackDisplayUpdater.yPointPole(elements, diskHeight), 2, elements * diskHeight);
-        g.fillRect(xPointPoleY, StackDisplayUpdater.yPointPole(elements, diskHeight), 2, elements * diskHeight);
-        g.fillRect(xPointPoleZ, StackDisplayUpdater.yPointPole(elements, diskHeight), 2, elements * diskHeight);
+        int y = StackDisplayUpdater.yPointPole(elements, diskHeight);
+        g.fillRect(xPointPoleX, y, 2, elements * diskHeight);
+        g.fillRect(xPointPoleY, y, 2, elements * diskHeight);
+        g.fillRect(xPointPoleZ, y, 2, elements * diskHeight);
     }
 
     private void drawStacks() {
