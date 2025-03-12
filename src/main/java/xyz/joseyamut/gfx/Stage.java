@@ -141,9 +141,9 @@ public class Stage extends Backstage {
         g.setColor(new Color(182, 103, 19));
         g.fillRect(10, 240, 575, 15);
         // Poles x/y/z
-        g.fillRect(xPointPoleX, yPointPole(), 2, elements * diskHeight);
-        g.fillRect(xPointPoleY, yPointPole(), 2, elements * diskHeight);
-        g.fillRect(xPointPoleZ, yPointPole(), 2, elements * diskHeight);
+        g.fillRect(xPointPoleX, StackDisplayUpdater.yPointPole(elements, diskHeight), 2, elements * diskHeight);
+        g.fillRect(xPointPoleY, StackDisplayUpdater.yPointPole(elements, diskHeight), 2, elements * diskHeight);
+        g.fillRect(xPointPoleZ, StackDisplayUpdater.yPointPole(elements, diskHeight), 2, elements * diskHeight);
     }
 
     private void drawStacks() {
@@ -181,16 +181,6 @@ public class Stage extends Backstage {
         g.setColor(new Color(241, 216, 111, 255));
         g.setFont(new Font("Courier New", Font.BOLD, 14));
         g.drawString(formattedElapsedTime, 25, 400);
-    }
-
-    private int yPointPole() {
-        return switch (elements - 1) {
-            case 8 -> (elements - 6) * diskHeight;
-            case 7 -> (elements - 4) * diskHeight;
-            case 6 -> (elements - 2) * diskHeight;
-            case 5 -> elements * diskHeight;
-            default -> (elements + 2) * diskHeight; // 4
-        };
     }
 
 }

@@ -9,7 +9,7 @@ public class StackDisplayUpdater {
     public static Rectangle draw(Graphics g,
                                  FixedStack stack,
                                  int elements,
-                                 int poleAnchorPointX) {
+                                 int xPointPole) {
         int diskPointX;
         int diskPointY;
         int diskWidth;
@@ -30,7 +30,7 @@ public class StackDisplayUpdater {
             for (int j = stackSize; j > 0; j--) {
                 stack.push(shiftStack.top());
                 disks[j] = shiftStack.pop();
-                diskPointX = poleAnchorPointX - (disks[j] * 10);
+                diskPointX = xPointPole - (disks[j] * 10);
                 diskPointY = 240 - (stack.size() * diskHeight);
                 diskWidth = disks[j] * diskHeight;
 
@@ -45,21 +45,21 @@ public class StackDisplayUpdater {
             }
         }
 
-        return setArea(g, poleAnchorPointX, elements, diskHeight);
+        return setArea(g, xPointPole, elements, diskHeight);
     }
 
-    private static Rectangle setArea(Graphics g, int poleAnchorPointX,
+    private static Rectangle setArea(Graphics g, int xPointPole,
                                      int elements, int diskHeight) {
         int widestDiskWidth = (elements - 1) * diskHeight;
-        int areaStartPointX = poleAnchorPointX - (widestDiskWidth / 2);
-        Rectangle stackArea = new Rectangle(areaStartPointX, areaStartPointY(elements, diskHeight),
+        int xPointArea = xPointPole - (widestDiskWidth / 2);
+        Rectangle stackArea = new Rectangle(xPointArea, yPointPole(elements, diskHeight),
                 widestDiskWidth, elements * diskHeight);
         g.setColor(Color.BLACK);
         g.drawRect(stackArea.x, stackArea.y, stackArea.width, stackArea.height);
         return stackArea;
     }
 
-    private static int areaStartPointY(int elements, int diskHeight) {
+    public static int yPointPole(int elements, int diskHeight) {
         return switch (elements - 1) {
             case 8 -> (elements - 6) * diskHeight;
             case 7 -> (elements - 4) * diskHeight;
