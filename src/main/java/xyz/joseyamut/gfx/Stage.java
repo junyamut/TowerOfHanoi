@@ -31,7 +31,7 @@ public class Stage extends Backstage {
     private boolean started;
     private long timeStarted;
     // Disks, poles and base
-    private final int diskHeight = 20;
+    public static final int diskHeight = 20;
     private final int xPointPoleX = 95;
     private final int xPointPoleY = 295;
     private final int xPointPoleZ = 495;

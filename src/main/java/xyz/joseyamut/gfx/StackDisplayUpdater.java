@@ -10,16 +10,12 @@ public class StackDisplayUpdater {
                                  FixedStack stack,
                                  int elements,
                                  int xPointPole) {
-        int diskPointX;
-        int diskPointY;
-        int diskWidth;
-
-        int diskHeight = 20;
-        int diskArc = 12;
-
-        int[] disks = new int[elements];
-
         if (!stack.isEmpty()) {
+            int diskPointX;
+            int diskPointY;
+            int diskWidth;
+            int diskArc = 12;
+            int[] disks = new int[elements];
             int stackSize = stack.size();
             FixedStack shiftStack = new FixedStack(stackSize);
 
@@ -31,21 +27,21 @@ public class StackDisplayUpdater {
                 stack.push(shiftStack.top());
                 disks[j] = shiftStack.pop();
                 diskPointX = xPointPole - (disks[j] * 10);
-                diskPointY = 240 - (stack.size() * diskHeight);
-                diskWidth = disks[j] * diskHeight;
+                diskPointY = 240 - (stack.size() * Stage.diskHeight);
+                diskWidth = disks[j] * Stage.diskHeight;
 
                 g.setColor(Color.DARK_GRAY);
                 g.drawRoundRect(diskPointX, diskPointY,
-                        diskWidth, diskHeight,
+                        diskWidth, Stage.diskHeight,
                         diskArc, diskArc);
                 g.setColor(getDiskColor(j));
                 g.fillRoundRect(diskPointX, diskPointY,
-                        diskWidth, diskHeight,
+                        diskWidth, Stage.diskHeight,
                         diskArc, diskArc);
             }
         }
 
-        return setArea(g, xPointPole, elements, diskHeight);
+        return setArea(g, xPointPole, elements, Stage.diskHeight);
     }
 
     private static Rectangle setArea(Graphics g, int xPointPole,
@@ -70,7 +66,7 @@ public class StackDisplayUpdater {
     }
 
     private static Color getDiskColor(int diskWeight) {
-        int modifier = (diskWeight + 1) * 10;
+        int modifier = (diskWeight + 1) * 14;
         return new Color(0,255 - modifier,0);
     }
 }
