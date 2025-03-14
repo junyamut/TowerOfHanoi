@@ -7,6 +7,3 @@
 #### Notes
 * Has 5 selectable levels: 4 (default) to 8 disks
 * Click+hold on locations X, Y, or Z with disks, and release to any other location.
-
-#### TODO
-* Make disk color gradients more distinct.

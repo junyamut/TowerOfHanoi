@@ -14,7 +14,6 @@ public class StackDisplayUpdater {
             int diskPointX;
             int diskPointY;
             int diskWidth;
-            int diskArc = 12;
             int[] disks = new int[elements];
             int stackSize = stack.size();
             FixedStack shiftStack = new FixedStack(stackSize);
@@ -33,23 +32,22 @@ public class StackDisplayUpdater {
                 g.setColor(Color.DARK_GRAY);
                 g.drawRoundRect(diskPointX, diskPointY,
                         diskWidth, Stage.diskHeight,
-                        diskArc, diskArc);
+                        Stage.diskArc, Stage.diskArc);
                 g.setColor(getDiskColor(j));
                 g.fillRoundRect(diskPointX, diskPointY,
                         diskWidth, Stage.diskHeight,
-                        diskArc, diskArc);
+                        Stage.diskArc, Stage.diskArc);
             }
         }
-
-        return setArea(g, xPointPole, elements, Stage.diskHeight);
+        return setArea(g, xPointPole, elements);
     }
 
     private static Rectangle setArea(Graphics g, int xPointPole,
-                                     int elements, int diskHeight) {
-        int widestDiskWidth = (elements - 1) * diskHeight;
+                                     int elements) {
+        int widestDiskWidth = (elements - 1) * Stage.diskHeight;
         int xPointArea = xPointPole - (widestDiskWidth / 2);
-        Rectangle stackArea = new Rectangle(xPointArea, yPointPole(elements, diskHeight),
-                widestDiskWidth, elements * diskHeight);
+        Rectangle stackArea = new Rectangle(xPointArea, yPointPole(elements, Stage.diskHeight),
+                widestDiskWidth, elements * Stage.diskHeight);
         g.setColor(Color.BLACK);
         g.drawRect(stackArea.x, stackArea.y, stackArea.width, stackArea.height);
         return stackArea;

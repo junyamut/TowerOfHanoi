@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class ClickedStackArea {
 
-    public static void updateMapIfActionIsValid(String key, Map<String, FixedStack> stackMap,
+    public static boolean updateMapIfActionIsValid(String key, Map<String, FixedStack> stackMap,
                                                 int pointX, int pointY,
                                                 ArrayList<Rectangle> areas,
                                                 ArrayList<FixedStack> stacks) {
@@ -14,11 +14,11 @@ public class ClickedStackArea {
         for (Rectangle area : areas) {
             if (area.contains(pointX, pointY)) {
                 stackMap.put(key, stacks.get(i));
-                break;
+                return true;
             }
             i++;
         }
-
+        return false;
     }
 
 }

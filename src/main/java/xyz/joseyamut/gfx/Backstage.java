@@ -40,8 +40,4 @@ public class Backstage extends JComponent {
         g.drawImage(canvas, 0, 0, this);
     }
 
-    public void update(Graphics g) {
-        paint(g);
-    }
-
 }

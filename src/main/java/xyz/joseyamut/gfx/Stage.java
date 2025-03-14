@@ -5,9 +5,7 @@ import xyz.joseyamut.util.ClickedStackArea;
 import xyz.joseyamut.util.FixedStack;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,21 +14,30 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Stage extends Backstage {
+
     private int elements;
     // Stacks
     private FixedStack initialStack; // Stack at X location
     private FixedStack yStack;
     private FixedStack zStack;
+    private FixedStack topDisk;
+    private Map<String, FixedStack> stackMap;
     // Mouse listener, stack clickable areas
     private MouseListener mouseListener;
+    private MouseMotionListener mouseMotionListener;
     private Rectangle xStackArea;
     private Rectangle yStackArea;
     private Rectangle zStackArea;
+    private int xPointMouse;
+    private int yPointMouse;
+    private boolean mouseActionWithinBounds;
     // Status text and duration
     private String status;
     private boolean started;
     private long timeStarted;
+    private long timeElapsed;
     // Disks, poles and base
+    public static final int diskArc = 12;
     public static final int diskHeight = 20;
     private final int xPointPoleX = 95;
     private final int xPointPoleY = 295;
@@ -45,18 +52,22 @@ public class Stage extends Backstage {
         status = "";
         started = false;
         timeStarted = 0;
+        mouseActionWithinBounds = false;
         elements = initialStack.size();
 
         yStack = new FixedStack(elements);
         zStack = new FixedStack(elements);
+        topDisk = new FixedStack(1);
+        topDisk.push(initialStack.top());
+        stackMap = new HashMap<>();
 
         elements += 1;
 
         setMouseListener();
+        setMouseMotionListener();
     }
 
     private void setMouseListener() {
-        Map<String, FixedStack> stackMap = new HashMap<>();
         stackMap.put(SRC_STACK_KEY, null);
         stackMap.put(DST_STACK_KEY, null);
 
@@ -66,10 +77,19 @@ public class Stage extends Backstage {
                 super.mousePressed(e);
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-                ClickedStackArea.updateMapIfActionIsValid(SRC_STACK_KEY, stackMap,
+                mouseActionWithinBounds = ClickedStackArea.updateMapIfActionIsValid(SRC_STACK_KEY, stackMap,
                         e.getX(), e.getY(),
                         new ArrayList<>(Arrays.asList(xStackArea, yStackArea, zStackArea)),
                         new ArrayList<>(Arrays.asList(initialStack, yStack, zStack)));
+
+                if (mouseActionWithinBounds) {
+                    if (!topDisk.isEmpty()) {
+                        topDisk.pop();
+                    }
+
+                    topDisk.push(stackMap.get(SRC_STACK_KEY).top());
+                    stackMap.get(SRC_STACK_KEY).pop();
+                }
             }
 
             @Override
@@ -77,16 +97,44 @@ public class Stage extends Backstage {
                 super.mouseReleased(e);
                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
-                ClickedStackArea.updateMapIfActionIsValid(DST_STACK_KEY, stackMap,
+                mouseActionWithinBounds = ClickedStackArea.updateMapIfActionIsValid(DST_STACK_KEY, stackMap,
                         e.getX(), e.getY(),
                         new ArrayList<>(Arrays.asList(xStackArea, yStackArea, zStackArea)),
                         new ArrayList<>(Arrays.asList(initialStack, yStack, zStack)));
-                moveDisk(stackMap);
-                repaint();
+
+                if (mouseActionWithinBounds) {
+                    moveDisk(stackMap);
+                } else {
+                    try {
+                        stackMap.get(SRC_STACK_KEY).push(topDisk.top());
+                        topDisk.pop();
+                    } catch (Exception x) {
+                        log.error("{}", x.getMessage());
+                    }
+                }
             }
         };
 
         addMouseListener(mouseListener);
+    }
+
+    private void setMouseMotionListener() {
+        mouseMotionListener = new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+                xPointMouse = yPointMouse = -10;
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                xPointMouse = e.getX();
+                yPointMouse = e.getY();
+            }
+        };
+
+        addMouseMotionListener(mouseMotionListener);
     }
 
     private void moveDisk(Map<String, FixedStack> stackMap) {
@@ -97,14 +145,16 @@ public class Stage extends Backstage {
                 && stackMap.get(DST_STACK_KEY) != null) {
             try {
                 if (!stackMap.get(DST_STACK_KEY).isEmpty() &&
-                        (stackMap.get(SRC_STACK_KEY).top() > stackMap.get(DST_STACK_KEY).top())) {
-                    log.warn("{}", invalidMoveMsg);
+                        (topDisk.top() > stackMap.get(DST_STACK_KEY).top())) {
+                    stackMap.get(SRC_STACK_KEY).push(topDisk.top());
+                    topDisk.pop();
                     status = invalidMoveMsg;
+                    log.warn("{}", invalidMoveMsg);
                     return;
                 }
 
-                stackMap.get(DST_STACK_KEY).push(stackMap.get(SRC_STACK_KEY).top());
-                stackMap.get(SRC_STACK_KEY).pop();
+                stackMap.get(DST_STACK_KEY).push(topDisk.top());
+                topDisk.pop();
                 status = validMoveMsg;
             } catch (Exception e) {
                 String emptyStackMsg = "That stack is empty.";
@@ -118,6 +168,23 @@ public class Stage extends Backstage {
         }
     }
 
+    private int floatingDiskWidth() {
+        if (!topDisk.isEmpty()) {
+            return topDisk.top() * diskHeight;
+        }
+
+        if (stackMap.get(SRC_STACK_KEY) == null
+                    && stackMap.get(DST_STACK_KEY) == null) {
+            return initialStack.top() + diskHeight;
+        }
+
+        if (stackMap.get(DST_STACK_KEY) != null) {
+            return stackMap.get(DST_STACK_KEY).top() * diskHeight;
+        }
+
+        return stackMap.get(SRC_STACK_KEY).top() * diskHeight;
+    }
+
     @Override
     public void graphics(Graphics g) {
         // Canvas background
@@ -128,6 +195,23 @@ public class Stage extends Backstage {
         drawBase();
         drawStacks();
         setStatus();
+
+        int diskWidth = floatingDiskWidth();
+        if (mouseActionWithinBounds) {
+            g.setColor(Color.GRAY);
+            g.fillRoundRect(xPointMouse - 20, yPointMouse - 20,
+                    diskWidth, diskHeight,
+                    diskArc, diskArc);
+        }
+
+        elapsedTime();
+        doRepaint();
+    }
+
+    private void doRepaint() {
+        if (started) {
+            repaint();
+        }
     }
 
     private void drawBase() {
@@ -158,11 +242,16 @@ public class Stage extends Backstage {
         yStackArea = StackDisplayUpdater.draw(g, yStack, elements, xPointPoleY);
         zStackArea = StackDisplayUpdater.draw(g, zStack, elements, xPointPoleZ);
 
-        if ((initialStack.isEmpty())
-                && (yStack.isEmpty())) {
+        timeElapsed = (System.currentTimeMillis() - timeStarted);
+
+        if (initialStack.isEmpty()
+                && yStack.isEmpty()
+                && topDisk.isEmpty()) {
+            started = false;
+            xPointMouse = yPointMouse = -10;
             status = "Game completed!";
-            elapsedTime();
             removeMouseListener(mouseListener);
+            removeMouseMotionListener(mouseMotionListener);
         }
     }
 
@@ -173,13 +262,12 @@ public class Stage extends Backstage {
     }
 
     private void elapsedTime() {
-        long timeElapsed = (System.currentTimeMillis() - timeStarted);
         long ss = TimeUnit.MILLISECONDS.toSeconds(timeElapsed) % 60;
         long mm = TimeUnit.MILLISECONDS.toMinutes(timeElapsed) % 60;
         long hh = TimeUnit.MILLISECONDS.toHours(timeElapsed);
         String formattedElapsedTime = String.format("Elapsed time - %02d:%02d:%02d", hh, mm, ss);
 
-        g.setColor(new Color(241, 216, 111, 255));
+        g.setColor(new Color(85, 85, 81, 255));
         g.setFont(new Font("Courier New", Font.BOLD, 14));
         g.drawString(formattedElapsedTime, 25, 400);
     }
