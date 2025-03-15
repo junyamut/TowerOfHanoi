@@ -58,6 +58,9 @@ public class TohWindow extends JFrame {
     }
 
     private JMenuBar menuBar() {
+        Font font = new Font("Courier New", Font.PLAIN, 13);
+        UIManager.put("Menu.font", font);
+        UIManager.put("MenuItem.font", font);
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Game");
         instructionsItem = new JMenuItem("Instructions");
@@ -77,17 +80,21 @@ public class TohWindow extends JFrame {
     }
 
     private void instructionsDialog() {
-        String instructions = "\nThe goal is to move the disks from location X to Z." +
-                "\n\nEach of the disks vary in size." +
-                "\n\nYou cannot place a bigger disk on top of a smaller one." +
-                "\n\nThe game ends when all the disks are stacked at location Z.";
+        String instructions = """
+                Solve the puzzle by transferring a tower of disks, of varying widths, from location X to location Z.\
+                
+                
+                The challenge lies in moving only one disk at a time and never placing a larger disk on top of a smaller one.\
+                
+                
+                The game is complete when the tower is rebuilt on location Z.""";
 
         JTextPane jTextPane = new JTextPane();
-        jTextPane.setPreferredSize( new Dimension(250, 250));
+        jTextPane.setPreferredSize(new Dimension(250, 250));
         jTextPane.setEditable(false);
         jTextPane.setText(instructions);
         StyledDocument styledDocument = jTextPane.getStyledDocument();
-        styledDocument.setParagraphAttributes(0, instructions.length(), paragraphStyling(), true);
+        styledDocument.setParagraphAttributes(0, styledDocument.getLength(), paragraphStyling(), true);
 
         JOptionPane.showMessageDialog(this, jTextPane,
                 "Instructions",
@@ -112,6 +119,7 @@ public class TohWindow extends JFrame {
         JDialog jDialog = new JDialog(this, "Restart Game");
         jDialog.add(jPanel);
         jDialog.setSize(250, 80);
+        jDialog.setResizable(false);
         jDialog.setLocationRelativeTo(this);
         jDialog.setVisible(true);
         jDialog.setModal(true);
@@ -128,7 +136,7 @@ public class TohWindow extends JFrame {
     private SimpleAttributeSet paragraphStyling() {
         SimpleAttributeSet styling = new SimpleAttributeSet();
         StyleConstants.setAlignment(styling, StyleConstants.ALIGN_JUSTIFIED);
-        StyleConstants.setFontFamily(styling, "Arial, Helvetica, sans-serif");
+        StyleConstants.setFontFamily(styling, "Courier New");
         StyleConstants.setFontSize(styling, 14);
         return styling;
     }

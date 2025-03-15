@@ -39,9 +39,9 @@ public class Stage extends Backstage {
     // Disks, poles and base
     public static final int diskArc = 12;
     public static final int diskHeight = 20;
-    private final int xPointPoleX = 95;
-    private final int xPointPoleY = 295;
-    private final int xPointPoleZ = 495;
+    private final int xPointPoleX = 98;
+    private final int xPointPoleY = 298;
+    private final int xPointPoleZ = 498;
     // Mouse clicked stack container
     private final String SRC_STACK_KEY = "SRC";
     private final String DST_STACK_KEY = "DST";
@@ -158,8 +158,8 @@ public class Stage extends Backstage {
                 status = validMoveMsg;
             } catch (Exception e) {
                 String emptyStackMsg = "That stack is empty.";
-                log.warn("{}", emptyStackMsg);
                 status = emptyStackMsg;
+                log.warn("{}", emptyStackMsg);
             }
 
             log.info("Stack 1: {}", initialStack.size());
@@ -188,16 +188,15 @@ public class Stage extends Backstage {
     @Override
     public void graphics(Graphics g) {
         // Canvas background
-        g.clearRect(0, 0, getSize().width, getSize().height);
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, getSize().width, getSize().height);
+        super.graphics(g);
 
         drawBase();
         drawStacks();
         setStatus();
 
         int diskWidth = floatingDiskWidth();
-        if (mouseActionWithinBounds) {
+        if (mouseActionWithinBounds
+                && (xPointMouse >= 0 && yPointMouse >= 0)) {
             g.setColor(Color.GRAY);
             g.fillRoundRect(xPointMouse - 20, yPointMouse - 20,
                     diskWidth, diskHeight,
@@ -248,8 +247,8 @@ public class Stage extends Backstage {
                 && yStack.isEmpty()
                 && topDisk.isEmpty()) {
             started = false;
-            xPointMouse = yPointMouse = -10;
             status = "Game completed!";
+            xPointMouse = yPointMouse = -10;
             removeMouseListener(mouseListener);
             removeMouseMotionListener(mouseMotionListener);
         }

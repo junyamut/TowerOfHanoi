@@ -12,7 +12,11 @@ public class Backstage extends JComponent {
         canvas = null;
         try {
             canvas = createImage(getSize().width, getSize().height);
-            g = canvas.getGraphics();
+            Graphics2D g2d = (Graphics2D) canvas.getGraphics();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g = g2d;
         } catch (OutOfMemoryError e) {
             canvas = null;
             g = null;
@@ -21,7 +25,7 @@ public class Backstage extends JComponent {
 
     public void graphics(Graphics g) {
         g.clearRect(0, 0, getSize().width, getSize().height);
-        g.setColor(Color.WHITE); // base color
+        g.setColor(Color.BLACK); // base color
         g.fillRect(0, 0, getSize().width, getSize().height);
     }
 

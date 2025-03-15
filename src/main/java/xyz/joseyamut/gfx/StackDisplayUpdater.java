@@ -46,8 +46,8 @@ public class StackDisplayUpdater {
                                      int elements) {
         int widestDiskWidth = (elements - 1) * Stage.diskHeight;
         int xPointArea = xPointPole - (widestDiskWidth / 2);
-        Rectangle stackArea = new Rectangle(xPointArea, yPointPole(elements, Stage.diskHeight),
-                widestDiskWidth, elements * Stage.diskHeight);
+        Rectangle stackArea = new Rectangle(xPointArea - 2, yPointPole(elements, Stage.diskHeight),
+                widestDiskWidth + 2, elements * Stage.diskHeight);
         g.setColor(Color.BLACK);
         g.drawRect(stackArea.x, stackArea.y, stackArea.width, stackArea.height);
         return stackArea;
