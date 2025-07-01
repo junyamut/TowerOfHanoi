@@ -87,8 +87,10 @@ public class Stage extends Backstage {
                         topDisk.pop();
                     }
 
-                    topDisk.push(stackMap.get(SRC_STACK_KEY).top());
-                    stackMap.get(SRC_STACK_KEY).pop();
+                    if (!stackMap.get(SRC_STACK_KEY).isEmpty()) {
+                        topDisk.push(stackMap.get(SRC_STACK_KEY).top());
+                        stackMap.get(SRC_STACK_KEY).pop();
+                    }
                 }
             }
 
@@ -123,7 +125,7 @@ public class Stage extends Backstage {
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
-                xPointMouse = yPointMouse = -10;
+                resetMousePressStartPoint();
             }
 
             @Override
@@ -144,10 +146,11 @@ public class Stage extends Backstage {
         if (stackMap.get(SRC_STACK_KEY) != null
                 && stackMap.get(DST_STACK_KEY) != null) {
             try {
-                if (!stackMap.get(DST_STACK_KEY).isEmpty() &&
-                        (topDisk.top() > stackMap.get(DST_STACK_KEY).top())) {
+                if (!stackMap.get(DST_STACK_KEY).isEmpty()
+                        && (topDisk.top() > stackMap.get(DST_STACK_KEY).top())) {
                     stackMap.get(SRC_STACK_KEY).push(topDisk.top());
                     topDisk.pop();
+                    resetMousePressStartPoint();
                     status = invalidMoveMsg;
                     log.warn("{}", invalidMoveMsg);
                     return;
@@ -155,6 +158,7 @@ public class Stage extends Backstage {
 
                 stackMap.get(DST_STACK_KEY).push(topDisk.top());
                 topDisk.pop();
+                resetMousePressStartPoint();
                 status = validMoveMsg;
             } catch (Exception e) {
                 String emptyStackMsg = "That stack is empty.";
@@ -168,6 +172,10 @@ public class Stage extends Backstage {
         }
     }
 
+    private void resetMousePressStartPoint() {
+        xPointMouse = yPointMouse = -10;
+    }
+
     private int floatingDiskWidth() {
         if (!topDisk.isEmpty()) {
             return topDisk.top() * diskHeight;
@@ -178,11 +186,17 @@ public class Stage extends Backstage {
             return initialStack.top() + diskHeight;
         }
 
-        if (stackMap.get(DST_STACK_KEY) != null) {
+        /*if (stackMap.get(DST_STACK_KEY) != null) {
             return stackMap.get(DST_STACK_KEY).top() * diskHeight;
+        }*/
+
+        if ((stackMap.get(SRC_STACK_KEY) != null
+                || stackMap.get(DST_STACK_KEY) != null)
+                && !stackMap.get(SRC_STACK_KEY).isEmpty()) {
+            return stackMap.get(SRC_STACK_KEY).top() * diskHeight;
         }
 
-        return stackMap.get(SRC_STACK_KEY).top() * diskHeight;
+        return 0;
     }
 
     @Override
@@ -248,7 +262,7 @@ public class Stage extends Backstage {
                 && topDisk.isEmpty()) {
             started = false;
             status = "Game completed!";
-            xPointMouse = yPointMouse = -10;
+            resetMousePressStartPoint();
             removeMouseListener(mouseListener);
             removeMouseMotionListener(mouseMotionListener);
         }
